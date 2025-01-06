@@ -1,0 +1,3 @@
+class ManagerDB:
+    def __init__(self, db):
+        ...
