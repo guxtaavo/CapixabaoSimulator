@@ -1,13 +1,9 @@
-from clube import Clube, clubes
+from clube import Clube
 import sys
 
 class TerminalInterface():
     def __init__(self):
         self.menu()
-        self.cadastrar_clube()
-        self.listar_clubes()
-        self.cadastrar_rodada()
-        self.listar_rodadas()
 
     def menu(self):
         while True:
@@ -45,41 +41,36 @@ class TerminalInterface():
                 break
 
     def listar_clubes(self):
-        for clube in clubes:
-            print(clube)
+        sys.quit()
 
     def cadastrar_rodada(self):
-        while True:
-            rodada = []
-            i = 0
-            print("Cadastrando rodada")
-            for clube in clubes:
-                i+=1
-                print(f"{i}. {clube}")
-            while True:
-                indice_clube_casa = int(input("Digite o número do clube da casa: "))
-                if indice_clube_casa < 1 or indice_clube_casa > len(clubes):
-                    print("Clube inválido!")
-                else:
-                    clube_casa = clubes[indice_clube_casa-1]
-                    break
-            while True:
-                indice_clube_visitante = int(input("Digite o número do clube visitante: "))
-                if indice_clube_visitante < 1 or indice_clube_visitante > len(clubes) or indice_clube_visitante == indice_clube_casa:
-                    print("Clube inválido!")
-                else:
-                    clube_visitante = clubes[indice_clube_visitante-1]
-                    break
-            rodada.append([clube_casa, clube_visitante])
+        sys.quit()
+        # while True:
+        #     rodada = []
+        #     i = 0
+        #     print("Cadastrando rodada")
+        #     for clube in clubes:
+        #         i+=1
+        #         print(f"{i}. {clube}")
+        #     while True:
+        #         indice_clube_casa = int(input("Digite o número do clube da casa: "))
+        #         if indice_clube_casa < 1 or indice_clube_casa > len(clubes):
+        #             print("Clube inválido!")
+        #         else:
+        #             clube_casa = clubes[indice_clube_casa-1]
+        #             break
+        #     while True:
+        #         indice_clube_visitante = int(input("Digite o número do clube visitante: "))
+        #         if indice_clube_visitante < 1 or indice_clube_visitante > len(clubes) or indice_clube_visitante == indice_clube_casa:
+        #             print("Clube inválido!")
+        #         else:
+        #             clube_visitante = clubes[indice_clube_visitante-1]
+        #             break
+        #     rodada.append([clube_casa, clube_visitante])
 
 
     def listar_rodadas(self):
-        for i in range(len(rodadas)):
-            print(f"Rodada {i+1}")
-            for partida in rodadas[i]:
-                print(partida)
-
-rodadas = []
+        sys.quit()
 
 if __name__ == '__main__':
     terminal = TerminalInterface()

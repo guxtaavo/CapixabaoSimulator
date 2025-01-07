@@ -1,5 +1,7 @@
+from terminal_interface import TerminalInterface
+
 def app():
-    print("Hello World!")
+    terminal = TerminalInterface()
 
 if __name__ == '__main__':
     app()
