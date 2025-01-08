@@ -26,7 +26,7 @@ class ManagerDB:
                 gols_pro INTEGER,
                 gols_contra INTEGER,
                 saldo_de_gols INTEGER,
-                porcentagem INTEGER
+                aproveitamento INTEGER
             )
             """
         )
@@ -34,16 +34,50 @@ class ManagerDB:
         con.close()
 
     @classmethod
-    def atualizar_tabela(cls):
-        pass
-
-    @classmethod
     def visualizar_tabela(cls):
-        pass
+        con = sqlite3.connect(DB_FILE)
+        cursor = con.cursor()
+        cursor.execute(f'SELECT posicao, nome_do_time, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento FROM {TABLE_NAME}')
+        rows = cursor.fetchall()
+
+        for row in rows:
+            print(row)
+        
+        con.close()
 
     @classmethod
     def adicionar_time(cls, clube: Clube):
+        con = sqlite3.connect(DB_FILE)
+        cursor = con.cursor()
+        cursor.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}")
+        count = cursor.fetchone()[0]
+        posicao = count + 1
+        sql = (
+            f"INSERT INTO {TABLE_NAME} (posicao, nome_do_time, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+        cursor.execute(sql, (1, clube.nome, clube.jogos, clube.vitorias, clube.empates, clube.derrotas, clube.gols_pro, clube.gols_contra, clube.saldo_gols, 0))
+        con.commit()
+        con.close()
+
+    @classmethod
+    def adicionar_rodada(cls, time1: str, time2: str):
+        pass
+
+    @classmethod
+    def atualizar_rodada(cls):
         pass
 
 if __name__ == "__main__":
     ManagerDB.create_table()
+    ManagerDB.adicionar_time(Clube("Capixaba"))
+    ManagerDB.adicionar_time(Clube("Desportiva"))
+    ManagerDB.adicionar_time(Clube("Jaguaré"))
+    ManagerDB.adicionar_time(Clube("Nova Venécia"))
+    ManagerDB.adicionar_time(Clube("Porto Vitória"))
+    ManagerDB.adicionar_time(Clube("Real Noroeste"))
+    ManagerDB.adicionar_time(Clube("Rio Branco VN"))
+    ManagerDB.adicionar_time(Clube("Rio Branco SAF"))
+    ManagerDB.adicionar_time(Clube("Vila Velhense"))
+    ManagerDB.adicionar_time(Clube("Vitória"))
+    ManagerDB.visualizar_tabela()

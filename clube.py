@@ -1,8 +1,7 @@
 class Clube:
-    def __init__(self, nome, apelido, vitorias=0, empates=0, derrotas=0, gols_pro=0, gols_contra=0):
+    def __init__(self, nome, vitorias=0, empates=0, derrotas=0, gols_pro=0, gols_contra=0):
         self.nome = nome
         self.jogos = vitorias + derrotas + empates
-        self.apelido = apelido
         self.vitorias = vitorias
         self.empates = empates
         self.derrotas = derrotas
