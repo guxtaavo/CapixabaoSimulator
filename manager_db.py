@@ -19,7 +19,6 @@ class ManagerDB:
             f"""
             CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                posicao INTEGER,
                 nome_do_time TEXT,
                 pontos INTEGER,
                 jogos INTEGER,
@@ -29,7 +28,8 @@ class ManagerDB:
                 gols_pro INTEGER,
                 gols_contra INTEGER,
                 saldo_de_gols INTEGER,
-                aproveitamento INTEGER
+                aproveitamento INTEGER,
+                posicao INTEGER
             )
             """
         )
@@ -64,13 +64,14 @@ class ManagerDB:
         con.close()
 
     @classmethod
-    def adicionar_rodada(cls):
+    def adicionar_rodada(cls, numero_rodada):
         rodada = []
-        NUMERO_DE_JOGOS = 5
-        for i in range(NUMERO_DE_JOGOS):
-            con = sqlite3.connect(DB_FILE)
-            cursor = con.cursor()
+        con = sqlite3.connect(DB_FILE)
+        cursor = con.cursor()
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS Rodada_{numero_rodada} (id INTEGER PRIMARY KEY AUTOINCREMENT, time1_id INTEGER, time1_nome TEXT, time2_id INTEGER, time2_nome TEXT, placar_time1 INTEGER, placar_time2 INTEGER)")
+        con.commit()
 
+        for i in range(5):
             while True:
                 time1 = input(f"Digite o nome do primeiro time do jogo {i+1}: ")
                 cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE nome_do_time = ?", (time1,))
@@ -95,16 +96,18 @@ class ManagerDB:
             clube2 = Clube.from_db_row(row2)
 
             rodada.append([clube1.nome, clube2.nome])
-            con.close()
+            cursor.execute(f"INSERT INTO Rodada_{numero_rodada} (time1_id, time1_nome, time2_id, time2_nome, placar_time1, placar_time2) VALUES (?, ?, ?, ?, ?, ?)", (row1[0], clube1.nome, None, row2[0], clube2.nome, None))
+            con.commit()
 
         cls.rodadas.append(rodada)
-        print(f"Rodada adicionada: {rodada}")
+        print(f"Rodada {numero_rodada} adicionada: {rodada}")
+        con.close()
 
     @classmethod
     def criar_rodadas(cls):
         NUMERO_DE_RODADAS = 10
-        for _ in range(NUMERO_DE_RODADAS):
-            cls.adicionar_rodada()
+        for i in range(1, NUMERO_DE_RODADAS + 1):
+            cls.adicionar_rodada(i)
 
     @classmethod
     def atualizar_rodada(cls):
