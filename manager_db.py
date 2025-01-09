@@ -21,6 +21,7 @@ class ManagerDB:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 posicao INTEGER,
                 nome_do_time TEXT,
+                pontos INTEGER,
                 jogos INTEGER,
                 vitorias INTEGER,
                 empates INTEGER,
@@ -39,7 +40,7 @@ class ManagerDB:
     def visualizar_tabela(cls):
         con = sqlite3.connect(DB_FILE)
         cursor = con.cursor()
-        cursor.execute(f'SELECT posicao, nome_do_time, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento FROM {TABLE_NAME}')
+        cursor.execute(f'SELECT nome_do_time, pontos, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento, posicao FROM {TABLE_NAME}')
         rows = cursor.fetchall()
 
         for row in rows:
@@ -55,19 +56,18 @@ class ManagerDB:
         count = cursor.fetchone()[0]
         posicao = count + 1
         sql = (
-            f"INSERT INTO {TABLE_NAME} (posicao, nome_do_time, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            f"INSERT INTO {TABLE_NAME} (nome_do_time, pontos, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento, posicao) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
-        cursor.execute(sql, (posicao, clube.nome, clube.jogos, clube.vitorias, clube.empates, clube.derrotas, clube.gols_pro, clube.gols_contra, clube.saldo_gols, 0))
+        cursor.execute(sql, (clube.nome, clube.pontos, clube.jogos, clube.vitorias, clube.empates, clube.derrotas, clube.gols_pro, clube.gols_contra, clube.saldo_gols, clube.aproveitamento, posicao))
         con.commit()
         con.close()
 
     @classmethod
-    def criar_rodadas(cls):
+    def adicionar_rodada(cls):
         rodada = []
-        NUMERO_DE_JOGOS_POR_RODADA = 5
-        NUMERO_DE_RODADAS = 10
-        for i in range(NUMERO_DE_JOGOS_POR_RODADA):
+        NUMERO_DE_JOGOS = 5
+        for i in range(NUMERO_DE_JOGOS):
             con = sqlite3.connect(DB_FILE)
             cursor = con.cursor()
 
@@ -99,7 +99,12 @@ class ManagerDB:
 
         cls.rodadas.append(rodada)
         print(f"Rodada adicionada: {rodada}")
-        print(cls.rodadas)
+
+    @classmethod
+    def criar_rodadas(cls):
+        NUMERO_DE_RODADAS = 10
+        for _ in range(NUMERO_DE_RODADAS):
+            cls.adicionar_rodada()
 
     @classmethod
     def atualizar_rodada(cls):
