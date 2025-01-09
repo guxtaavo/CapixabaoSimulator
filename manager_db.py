@@ -9,6 +9,8 @@ DB_FILE = ROOT_DIR / DB_NAME
 TABLE_NAME = "Capixabao"
 
 class ManagerDB:
+    rodadas = []
+
     @classmethod
     def create_table(cls):
         con = sqlite3.connect(DB_FILE)
@@ -56,13 +58,48 @@ class ManagerDB:
             f"INSERT INTO {TABLE_NAME} (posicao, nome_do_time, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
-        cursor.execute(sql, (1, clube.nome, clube.jogos, clube.vitorias, clube.empates, clube.derrotas, clube.gols_pro, clube.gols_contra, clube.saldo_gols, 0))
+        cursor.execute(sql, (posicao, clube.nome, clube.jogos, clube.vitorias, clube.empates, clube.derrotas, clube.gols_pro, clube.gols_contra, clube.saldo_gols, 0))
         con.commit()
         con.close()
 
     @classmethod
-    def adicionar_rodada(cls, time1: str, time2: str):
-        pass
+    def criar_rodadas(cls):
+        rodada = []
+        NUMERO_DE_JOGOS_POR_RODADA = 5
+        NUMERO_DE_RODADAS = 10
+        for i in range(NUMERO_DE_JOGOS_POR_RODADA):
+            con = sqlite3.connect(DB_FILE)
+            cursor = con.cursor()
+
+            while True:
+                time1 = input(f"Digite o nome do primeiro time do jogo {i+1}: ")
+                cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE nome_do_time = ?", (time1,))
+                row1 = cursor.fetchone()
+                if row1 is None:
+                    print(f"Time '{time1}' não encontrado. Tente novamente.")
+                    continue
+
+                time2 = input(f"Digite o nome do segundo time do jogo {i+1}: ")
+                cursor.execute(f"SELECT * FROM {TABLE_NAME} WHERE nome_do_time = ?", (time2,))
+                row2 = cursor.fetchone()
+                if row2 is None:
+                    print(f"Time '{time2}' não encontrado. Tente novamente.")
+                    continue
+
+                if time1 == time2:
+                    print("Os times não podem ser iguais. Tente novamente.")
+                    continue
+                break
+
+            clube1 = Clube.from_db_row(row1)
+            clube2 = Clube.from_db_row(row2)
+
+            rodada.append([clube1.nome, clube2.nome])
+            con.close()
+
+        cls.rodadas.append(rodada)
+        print(f"Rodada adicionada: {rodada}")
+        print(cls.rodadas)
 
     @classmethod
     def atualizar_rodada(cls):
@@ -78,6 +115,7 @@ if __name__ == "__main__":
     ManagerDB.adicionar_time(Clube("Real Noroeste"))
     ManagerDB.adicionar_time(Clube("Rio Branco VN"))
     ManagerDB.adicionar_time(Clube("Rio Branco SAF"))
-    ManagerDB.adicionar_time(Clube("Vila Velhense"))
+    ManagerDB.adicionar_time(Clube("Vilavelhense"))
     ManagerDB.adicionar_time(Clube("Vitória"))
+    ManagerDB.criar_rodadas()
     ManagerDB.visualizar_tabela()
