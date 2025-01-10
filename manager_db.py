@@ -80,8 +80,8 @@ class ManagerDB:
         cursor.execute(f'SELECT id FROM {TABLE_NAME} ORDER BY pontos DESC, vitorias DESC, saldo_de_gols DESC, gols_pro DESC')
         rows = cursor.fetchall()
 
-        for nova_posicao, (time_id,) in enumerate(rows, start=1):
-            cursor.execute(f"UPDATE {TABLE_NAME} SET posicao = ? WHERE id = ?", (nova_posicao, time_id))
+        for posicao, row in enumerate(rows, start=1):
+            cursor.execute(f"UPDATE {TABLE_NAME} SET posicao = ? WHERE id = ?", (posicao, row[0]))
         con.commit()
         con.close()
 
@@ -162,12 +162,14 @@ class ManagerDB:
 
     @classmethod
     def atualizar_rodada(cls, numero_rodada, jogo, placar_time1, placar_time2):
+        print(numero_rodada, jogo, placar_time1, placar_time2)
         con = sqlite3.connect(DB_FILE)
         cursor = con.cursor()
-        cursor.execute(f"UPDATE Rodada_{numero_rodada} SET placar_time1 = ?, placar_time2 = ? WHERE id = ?", (placar_time1, placar_time2, jogo))
+        cursor.execute(f"UPDATE Rodada_{numero_rodada} SET placar_time1 = ?, placar_time2 = ? WHERE id = ?", (placar_time1, placar_time2, jogo)) #Jogo é o ID do jogo
         con.commit()
         con.close()
-        cls.atualizar_estatisticas(numero_rodada)
+        cls.atualizar_estatisticas()
+        cls.atualizar_posicoes()
 
     @classmethod
     def atualizar_estatisticas(cls):
@@ -178,19 +180,42 @@ class ManagerDB:
 
         for time in times:
             time_id = time[0]
-            cursor.execute(f"SELECT SUM(placar_time1), SUM(placar_time2) FROM Rodada WHERE time1_id = ? OR time2_id = ?", (time_id, time_id))
-            gols_pro, gols_contra = cursor.fetchone()
-            gols_pro = gols_pro if gols_pro is not None else 0
-            gols_contra = gols_contra if gols_contra is not None else 0
+            gols_pro = 0
+            gols_contra = 0
+            vitorias = 0
+            derrotas = 0
+            empates = 0
 
-            cursor.execute(f"SELECT COUNT(*) FROM Rodada WHERE (time1_id = ? AND placar_time1 > placar_time2) OR (time2_id = ? AND placar_time2 > placar_time1)", (time_id, time_id))
-            vitorias = cursor.fetchone()[0]
+            for numero_rodada in range(1, 11):  # Supondo que há 10 rodadas
+                # Verificar se a tabela da rodada existe
+                cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='Rodada_{numero_rodada}'")
+                if cursor.fetchone() is None:
+                    continue
 
-            cursor.execute(f"SELECT COUNT(*) FROM Rodada WHERE (time1_id = ? AND placar_time1 < placar_time2) OR (time2_id = ? AND placar_time2 < placar_time1)", (time_id, time_id))
-            derrotas = cursor.fetchone()[0]
+                # Gols pró e gols contra
+                cursor.execute(f"SELECT SUM(placar_time1), SUM(placar_time2) FROM Rodada_{numero_rodada} WHERE time1_id = ?", (time_id,))
+                result = cursor.fetchone()
+                if result:
+                    gols_pro += result[0] if result[0] is not None else 0
+                    gols_contra += result[1] if result[1] is not None else 0
 
-            cursor.execute(f"SELECT COUNT(*) FROM Rodada WHERE (time1_id = ? OR time2_id = ?) AND placar_time1 = placar_time2", (time_id, time_id))
-            empates = cursor.fetchone()[0]
+                cursor.execute(f"SELECT SUM(placar_time2), SUM(placar_time1) FROM Rodada_{numero_rodada} WHERE time2_id = ?", (time_id,))
+                result = cursor.fetchone()
+                if result:
+                    gols_pro += result[0] if result[0] is not None else 0
+                    gols_contra += result[1] if result[1] is not None else 0
+
+                # Vitórias
+                cursor.execute(f"SELECT COUNT(*) FROM Rodada_{numero_rodada} WHERE (time1_id = ? AND placar_time1 > placar_time2) OR (time2_id = ? AND placar_time2 > placar_time1)", (time_id, time_id))
+                vitorias += cursor.fetchone()[0]
+
+                # Derrotas
+                cursor.execute(f"SELECT COUNT(*) FROM Rodada_{numero_rodada} WHERE (time1_id = ? AND placar_time1 < placar_time2) OR (time2_id = ? AND placar_time2 < placar_time1)", (time_id, time_id))
+                derrotas += cursor.fetchone()[0]
+
+                # Empates
+                cursor.execute(f"SELECT COUNT(*) FROM Rodada_{numero_rodada} WHERE (time1_id = ? OR time2_id = ?) AND placar_time1 = placar_time2", (time_id, time_id))
+                empates += cursor.fetchone()[0]
 
             jogos = vitorias + derrotas + empates
             pontos = vitorias * 3 + empates
@@ -202,20 +227,40 @@ class ManagerDB:
 
         con.close()
 
-        cls.atualizar_posicoes()
+    @classmethod
+    def editar_rodada(cls):
+        while True:
+            numero_rodada = input("Digite o número da rodada a ser editada: ")
+            con = sqlite3.connect(DB_FILE)
+            cursor = con.cursor()
+            cursor.execute(f"SELECT * FROM Rodada_{numero_rodada}")
+            jogos = cursor.fetchall()
+            con.close()
 
-if __name__ == "__main__":
-    ...
-    # ManagerDB.create_table()
-    # ManagerDB.adicionar_time(Clube("Capixaba"))
-    # ManagerDB.adicionar_time(Clube("Desportiva"))
-    # ManagerDB.adicionar_time(Clube("Jaguaré"))
-    # ManagerDB.adicionar_time(Clube("Nova Venécia"))
-    # ManagerDB.adicionar_time(Clube("Porto Vitória"))
-    # ManagerDB.adicionar_time(Clube("Real Noroeste"))
-    # ManagerDB.adicionar_time(Clube("Rio Branco VN"))
-    # ManagerDB.adicionar_time(Clube("Rio Branco SAF"))
-    # ManagerDB.adicionar_time(Clube("Vilavelhense"))
-    # ManagerDB.adicionar_time(Clube("Vitória"))
-    # ManagerDB.criar_rodadas()
-    # ManagerDB.visualizar_tabela()
+            if not jogos:
+                print(f"Nenhuma rodada encontrada com o número {numero_rodada}.")
+                continue
+
+            print(f"Rodada {numero_rodada}:")
+            for i, jogo in enumerate(jogos, start=1):
+                placar_time1 = jogo[3] if jogo[3] is not None else 'None'
+                placar_time2 = jogo[6] if jogo[6] is not None else 'None'
+                print(f"Jogo {i} - {jogo[2]} {placar_time1} vs {placar_time2} {jogo[5]}")
+
+            while True:
+                numero_jogo = int(input("Digite o número do jogo que deseja editar (ou 0 para voltar): "))
+                if numero_jogo == 0:
+                    break
+                if numero_jogo < 1 or numero_jogo > len(jogos):
+                    print("Número do jogo inválido. Tente novamente.")
+                    continue
+
+                placar_time1 = input(f"Digite o placar do time 1 do jogo {numero_jogo}: ")
+                placar_time2 = input(f"Digite o placar do time 2 do jogo {numero_jogo}: ")
+                print(numero_rodada, jogos[numero_jogo - 1][0], placar_time1, placar_time2)
+                cls.atualizar_rodada(numero_rodada, jogos[numero_jogo - 1][0], placar_time1, placar_time2)
+                print(f"Jogo {numero_jogo} da rodada {numero_rodada} editado com sucesso!")
+
+            opcao = input("Deseja editar outra rodada? (s/n): ")
+            if opcao.lower() == 'n':
+                break
