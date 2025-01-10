@@ -1,6 +1,7 @@
 # Simulador do Capixabão
 
 Este é um projeto de **simulador de campeonato de pontos corridos** desenvolvido em Python, com uma implementação específica para o **Campeonato Capixaba**. O sistema permite cadastrar times, gerenciar rodadas, calcular estatísticas e acompanhar a tabela do campeonato em tempo real. A base de dados é gerenciada utilizando o SQLite3.
+Ainda está em desenvolvimento para deixar a utilização mais prática... Pretendo criar uma interface para rodar em um arquivo executável.
 
 ## Funcionalidades
 
