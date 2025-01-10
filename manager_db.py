@@ -3,12 +3,13 @@ from pathlib import Path
 from tabulate import tabulate
 from clube import Clube
 import os
+import config
 
 # Configuração do caminho do banco de dados
 ROOT_DIR = Path(__file__).parent
 DB_NAME = "db.sqlite3"
 DB_FILE = ROOT_DIR / DB_NAME
-TABLE_NAME = "Capixabao"
+TABLE_NAME = config.NOME_DO_CAMPEONATO
 
 class ManagerDB:
     rodadas = []
@@ -147,6 +148,29 @@ class ManagerDB:
             cls.adicionar_rodada(i)
 
     @classmethod
+    def listar_rodadas(cls):
+        con = sqlite3.connect(DB_FILE)
+        cursor = con.cursor()
+
+        for numero_rodada in range(1, 11):  # Supondo que há 10 rodadas
+            # Verificar se a tabela da rodada existe
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='Rodada_{numero_rodada}'")
+            if cursor.fetchone() is None:
+                continue
+
+            print(f"Rodada {numero_rodada}:")
+            cursor.execute(f"SELECT time1_nome, placar_time1, time2_nome, placar_time2 FROM Rodada_{numero_rodada}")
+            jogos = cursor.fetchall()
+
+            for i, jogo in enumerate(jogos, start=1):
+                time1_nome, placar_time1, time2_nome, placar_time2 = jogo
+                placar_time1 = placar_time1 if placar_time1 is not None else 0
+                placar_time2 = placar_time2 if placar_time2 is not None else 0
+                print(f"Jogo {i} - {time1_nome} {placar_time1} vs {placar_time2} {time2_nome}")
+
+        con.close()
+
+    @classmethod
     def carregar_campeonato(cls):
         con = sqlite3.connect(DB_FILE)
         cursor = con.cursor()
@@ -162,7 +186,6 @@ class ManagerDB:
 
     @classmethod
     def atualizar_rodada(cls, numero_rodada, jogo, placar_time1, placar_time2):
-        print(numero_rodada, jogo, placar_time1, placar_time2)
         con = sqlite3.connect(DB_FILE)
         cursor = con.cursor()
         cursor.execute(f"UPDATE Rodada_{numero_rodada} SET placar_time1 = ?, placar_time2 = ? WHERE id = ?", (placar_time1, placar_time2, jogo)) #Jogo é o ID do jogo
@@ -186,7 +209,7 @@ class ManagerDB:
             derrotas = 0
             empates = 0
 
-            for numero_rodada in range(1, 11):  # Supondo que há 10 rodadas
+            for numero_rodada in range(1, config.NUMERO_DE_RODADAS):  # Supondo que há 10 rodadas
                 # Verificar se a tabela da rodada existe
                 cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='Rodada_{numero_rodada}'")
                 if cursor.fetchone() is None:
@@ -257,7 +280,6 @@ class ManagerDB:
 
                 placar_time1 = input(f"Digite o placar do time 1 do jogo {numero_jogo}: ")
                 placar_time2 = input(f"Digite o placar do time 2 do jogo {numero_jogo}: ")
-                print(numero_rodada, jogos[numero_jogo - 1][0], placar_time1, placar_time2)
                 cls.atualizar_rodada(numero_rodada, jogos[numero_jogo - 1][0], placar_time1, placar_time2)
                 print(f"Jogo {numero_jogo} da rodada {numero_rodada} editado com sucesso!")
 

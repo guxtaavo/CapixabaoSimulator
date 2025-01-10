@@ -1,5 +1,6 @@
 from clube import Clube
 from manager_db import ManagerDB
+import config
 import sys, os
 
 class TerminalInterface:
@@ -75,28 +76,30 @@ class TerminalInterface:
         while True:
             print("Escolha uma opção:")
             print("1 - Mostrar classificação")
-            print("2 - Editar rodada")
-            print("3 - Sair")
+            print("2 - Mostrar rodadas")
+            print("3 - Editar rodada")
+            print("4 - Sair")
             opcao = input("Digite o número da opção desejada: ")
             match opcao:
                 case "1":
+                    os.system('cls')
                     self.visualizar_tabela()
                 case "2":
-                    ManagerDB.editar_rodada()
+                    os.system('cls')
+                    ManagerDB.listar_rodadas()
                 case "3":
+                    os.system('cls')
+                    ManagerDB.editar_rodada()
+                case "4":
+                    os.system('cls')
                     print("Obrigado por utilizar o sistema!")
                     sys.exit()
                 case _:
                     print("Opção inválida!")
 
     def cadastrar_clube(self):
-        while True:
-            os.system('cls')
-            numero_clubes = int(input("Digite o número de clubes a serem cadastrados: "))
-            if numero_clubes != 0:
-                break
-            print("Número inválido. Tente novamente.")
-        for _ in range(numero_clubes):
+        os.system('cls')
+        for _ in range(config.NUMERO_DE_TIMES):
             nome = input("Digite o nome do clube: ")
             clube = Clube(nome)
             ManagerDB.adicionar_time(clube)
