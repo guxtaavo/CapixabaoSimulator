@@ -3,31 +3,30 @@ from tkinter import font, messagebox, Listbox
 from pathlib import Path
 from campeonato import Campeonato
 from manager_db import ManagerDB
+import sys
 
 # Define o diretório raiz para encontrar os arquivos de banco de dados
-ROOT_DIR = Path(__file__).parent
+# Bloco para detectar se está rodando como .exe ou script
+if getattr(sys, 'frozen', False):
+    ROOT_DIR = Path(sys.executable).parent
+else:
+    ROOT_DIR = Path(__file__).parent.parent
 
 class InterfaceGrafica:
     def __init__(self):
         """Inicializa a janela principal e a estrutura da interface."""
         self.manager_db = None  # Armazena a instância do DB para a simulação atual
-        self.largura = 1280
-        self.altura = 720
-        self.janela = tk.Tk()
-        self.janela.title("Capixabão Simulator 2026")
-        try:
-            # Tenta carregar o ícone (opcional, não quebra se o arquivo não existir)
-            self.janela.iconbitmap(ROOT_DIR / "images/icone.ico")
-        except tk.TclError:
-            print("INFO: Arquivo 'images/icone.ico' não encontrado. Usando ícone padrão.")
-        
-        self.janela.geometry(f"{self.largura}x{self.altura}")
-        self.janela.configure(bg="#2c3e50") # Um azul escuro para o fundo
+        self.largura = 1280 # Largura da janela
+        self.altura = 720 # Altura da janela
+        self.janela = tk.Tk() # Janela principal do Tkinter
+        self.janela.title("Capixabão Simulator 2026") # Título da janela
+        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico")
+        self.janela.geometry(f"{self.largura}x{self.altura}") # Define o tamanho da janela
+        self.janela.configure(bg="#2c3e50") # Background da janela
 
         # Canvas principal que servirá como base para as telas
         self.canvas = tk.Canvas(self.janela, bg="#2c3e50", highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
-
         self.menu() # Exibe o menu principal ao iniciar
 
     def iniciar(self):
@@ -38,15 +37,30 @@ class InterfaceGrafica:
         """Desenha a tela do menu principal com as opções."""
         self.canvas.delete("all") # Limpa a tela antes de desenhar
         
-        self.canvas.create_text(self.largura // 2, self.altura // 4, text="Campeonato Capixaba 2026", font=("Lato", 32, "bold"), fill="#ecf0f1")
+        # Título do app
+        self.canvas.create_text(self.largura // 2, self.altura // 4,
+                                text="Campeonato Capixaba 2026", font=("Lato", 32, "bold"),
+                                fill="#ecf0f1")
         
-        botao_criar = tk.Button(self.janela, text="Criar Nova Simulação", font=("Lato", 14, "bold"), bg="#3498db", fg="white", activebackground="#2980b9", activeforeground="white", relief="flat", bd=0, padx=20, pady=10, cursor="hand2", command=self.criar_simulacao)
+        # Botões de criar nova simulação
+        botao_criar = tk.Button(self.janela, 
+                                text="Criar Nova Simulação", font=("Lato", 14, "bold"),
+                                bg="#3498db", fg="white", activebackground="#2980b9",
+                                activeforeground="white", relief="flat", bd=0, padx=20, pady=10,
+                                cursor="hand2", command=self.criar_simulacao)
         self.canvas.create_window(self.largura // 2, self.altura // 2 - 30, window=botao_criar)
 
-        botao_carregar = tk.Button(self.janela, text="Carregar Simulação", font=("Lato", 14, "bold"), bg="#9b59b6", fg="white", activebackground="#8e44ad", activeforeground="white", relief="flat", bd=0, padx=20, pady=10, cursor="hand2", command=self.abrir_seletor_de_db)
+        # Botões de carregar simulação existente
+        botao_carregar = tk.Button(self.janela, text="Carregar Simulação",
+                                   font=("Lato", 14, "bold"), bg="#9b59b6",
+                                   fg="white", activebackground="#8e44ad", activeforeground="white", 
+                                   relief="flat", bd=0, padx=20, pady=10, cursor="hand2", 
+                                   command=self.abrir_seletor_de_db)
         self.canvas.create_window(self.largura // 2, self.altura // 2 + 50, window=botao_carregar)
         
-        self.canvas.create_text(self.largura // 2, self.altura - 40, text="© 2025 Capixabão Simulator", font=("Lato", 10), fill="#bdc3c7")
+        self.canvas.create_text(self.largura // 2, self.altura - 40,
+                                text="© 2025 Capixabão Simulator",
+                                font=("Lato", 10), fill="#bdc3c7")
 
     def criar_simulacao(self):
         """Cria uma nova instância de campeonato e configura o banco de dados."""
@@ -63,7 +77,8 @@ class InterfaceGrafica:
         arquivos_salvos = sorted(list(ROOT_DIR.glob('Campeonato_Capixaba_2026*.sqlite3')))
 
         if not arquivos_salvos:
-            messagebox.showinfo("Nenhum Arquivo Encontrado", "Não há simulações salvas para carregar.")
+            messagebox.showinfo("Nenhum Arquivo Encontrado",
+                                "Não há simulações salvas para carregar.")
             return
 
         seletor_janela = tk.Toplevel(self.janela)
@@ -73,9 +88,11 @@ class InterfaceGrafica:
         seletor_janela.transient(self.janela)
         seletor_janela.grab_set()
 
-        tk.Label(seletor_janela, text="Selecione uma simulação:", bg="#34495e", fg="white", font=("Lato", 12)).pack(pady=10)
+        tk.Label(seletor_janela, text="Selecione uma simulação:", bg="#34495e", 
+                 fg="white", font=("Lato", 12)).pack(pady=10)
 
-        listbox = Listbox(seletor_janela, bg="#2c3e50", fg="white", selectbackground="#3498db", font=("Lato", 11), relief="flat")
+        listbox = Listbox(seletor_janela, bg="#2c3e50", fg="white", 
+                          selectbackground="#3498db", font=("Lato", 11), relief="flat")
         listbox.pack(fill="both", expand=True, padx=10, pady=5)
 
         for arquivo in arquivos_salvos:
@@ -84,7 +101,8 @@ class InterfaceGrafica:
         def carregar_selecionado():
             indices = listbox.curselection()
             if not indices:
-                messagebox.showwarning("Nenhuma Seleção", "Por favor, selecione um arquivo para carregar.")
+                messagebox.showwarning("Nenhuma Seleção",
+                                       "Por favor, selecione um arquivo para carregar.")
                 return
             
             nome_arquivo = listbox.get(indices[0])
@@ -98,8 +116,12 @@ class InterfaceGrafica:
 
         btn_frame = tk.Frame(seletor_janela, bg="#34495e")
         btn_frame.pack(pady=10)
-        tk.Button(btn_frame, text="Carregar", command=carregar_selecionado, bg="#27ae60", fg="white", relief="flat", font=("Lato", 10)).pack(side="left", padx=10)
-        tk.Button(btn_frame, text="Cancelar", command=seletor_janela.destroy, bg="#c0392b", fg="white", relief="flat", font=("Lato", 10)).pack(side="left", padx=10)
+        tk.Button(btn_frame, text="Carregar", command=carregar_selecionado,
+                  bg="#27ae60", fg="white", 
+                  relief="flat", font=("Lato", 10)).pack(side="left", padx=10)
+        tk.Button(btn_frame, text="Cancelar", command=seletor_janela.destroy,
+                  bg="#c0392b", fg="white", 
+                  relief="flat", font=("Lato", 10)).pack(side="left", padx=10)
 
     def mostrar_tela_simulacao(self):
         """Cria e exibe a tela principal da simulação com classificação e rodadas."""
@@ -125,10 +147,13 @@ class InterfaceGrafica:
         frame_direita.pack(side="right", fill="both", expand=True, padx=(5, 10), pady=10)
 
         # ----- CONTEÚDO DO FRAME ESQUERDO (CLASSIFICAÇÃO) -----
-        tk.Label(frame_esquerda, text="CLASSIFICAÇÃO", font=("Lato", 18, "bold"), bg="#2c3e50", fg="#ecf0f1").pack(pady=10)
+        tk.Label(frame_esquerda, text="CLASSIFICAÇÃO", font=("Lato", 18, "bold"),
+                 bg="#2c3e50", fg="#ecf0f1").pack(pady=10)
         
         fonte_mono = font.Font(family="Courier", size=10)
-        texto_tabela = tk.Text(frame_esquerda, wrap="none", font=fonte_mono, bg="#34495e", fg="white", relief="flat", state="disabled", borderwidth=0)
+        texto_tabela = tk.Text(frame_esquerda, wrap="none", font=fonte_mono, 
+                               bg="#34495e", fg="white", relief="flat", 
+                               state="disabled", borderwidth=0)
         texto_tabela.pack(fill="both", expand=True)
 
         def atualizar_tabela_gui():
@@ -138,8 +163,9 @@ class InterfaceGrafica:
             texto_tabela.insert("1.0", tabela_str)
             texto_tabela.config(state="disabled")
 
-        # ----- CONTEÚDO DO FRAME DIREITO (EDITOR DE RODADAS) -----
-        tk.Label(frame_direita, text="EDITOR DE RODADAS", font=("Lato", 18, "bold"), bg="#2c3e50", fg="#ecf0f1").pack(pady=10)
+        # ----- CONTEÚDO DA PARTE DIREITA DA TELA (EDITOR DE RODADAS) -----
+        tk.Label(frame_direita, text="EDITOR DE RODADAS", font=("Lato", 18, "bold"),
+                 bg="#2c3e50", fg="#ecf0f1").pack(pady=10)
         
         frame_lista_rodadas = tk.Frame(frame_direita, bg="#2c3e50")
         frame_lista_rodadas.pack(fill="x", pady=5)
@@ -151,7 +177,8 @@ class InterfaceGrafica:
             for widget in frame_jogos_rodada.winfo_children():
                 widget.destroy()
 
-            tk.Label(frame_jogos_rodada, text=f"Jogos da Rodada {num_rodada}", font=("Lato", 14, "bold"), bg="#34495e", fg="#ecf0f1").pack(pady=(5, 15))
+            tk.Label(frame_jogos_rodada, text=f"Jogos da Rodada {num_rodada}",
+                     font=("Lato", 14, "bold"), bg="#34495e", fg="#ecf0f1").pack(pady=(5, 15))
 
             jogos = self.manager_db.get_jogos_da_rodada(num_rodada)
             for id_jogo, mandante, visitante, pm, pv in jogos:
@@ -167,19 +194,24 @@ class InterfaceGrafica:
                 frame_jogo.grid_columnconfigure(5, weight=2) # Coluna botão salvar
 
                 # --- Widgets posicionados com .grid() para alinhamento perfeito ---
-                tk.Label(frame_jogo, text=mandante, font=("Lato", 12), bg="#2c3e50", fg="white", anchor='e').grid(row=0, column=0, sticky="ew", padx=(0, 10))
+                tk.Label(frame_jogo, text=mandante, font=("Lato", 12), bg="#2c3e50",
+                         fg="white", anchor='e').grid(row=0, column=0, sticky="ew", padx=(0, 10))
                 
                 pm_var = tk.StringVar(value=pm if pm is not None else "")
-                entry_pm = tk.Entry(frame_jogo, textvariable=pm_var, width=3, font=("Lato", 12, "bold"), justify='center', relief="flat")
+                entry_pm = tk.Entry(frame_jogo, textvariable=pm_var, width=3,
+                                    font=("Lato", 12, "bold"), justify='center', relief="flat")
                 entry_pm.grid(row=0, column=1)
 
-                tk.Label(frame_jogo, text="X", font=("Lato", 12, "bold"), bg="#2c3e50", fg="white").grid(row=0, column=2, padx=5)
+                tk.Label(frame_jogo, text="X", font=("Lato", 12, "bold"),
+                         bg="#2c3e50", fg="white").grid(row=0, column=2, padx=5)
                 
                 pv_var = tk.StringVar(value=pv if pv is not None else "")
-                entry_pv = tk.Entry(frame_jogo, textvariable=pv_var, width=3, font=("Lato", 12, "bold"), justify='center', relief="flat")
+                entry_pv = tk.Entry(frame_jogo, textvariable=pv_var, width=3,
+                                    font=("Lato", 12, "bold"), justify='center', relief="flat")
                 entry_pv.grid(row=0, column=3)
 
-                tk.Label(frame_jogo, text=visitante, font=("Lato", 12), bg="#2c3e50", fg="white", anchor='w').grid(row=0, column=4, sticky="ew", padx=(10, 0))
+                tk.Label(frame_jogo, text=visitante, font=("Lato", 12), bg="#2c3e50",
+                         fg="white", anchor='w').grid(row=0, column=4, sticky="ew", padx=(10, 0))
 
                 def salvar(id_j=id_jogo, pm_v=pm_var, pv_v=pv_var, rodada=num_rodada):
                     try:
@@ -188,15 +220,20 @@ class InterfaceGrafica:
                         self.manager_db.atualizar_placar(rodada, id_j, novo_pm, novo_pv)
                         atualizar_tabela_gui() # ATUALIZA A TABELA NA ESQUERDA!
                     except ValueError:
-                        messagebox.showerror("Erro de Entrada", "Placar inválido. Por favor, insira apenas números.")
+                        messagebox.showerror("Erro de Entrada",
+                                             "Placar inválido. Por favor, insira apenas números.")
 
-                btn_salvar = tk.Button(frame_jogo, text="Salvar", command=salvar, cursor="hand2", bg="#27ae60", fg="white", relief="flat", font=("Lato", 9, "bold"))
+                btn_salvar = tk.Button(frame_jogo, text="Salvar", command=salvar,
+                                       cursor="hand2", bg="#27ae60", fg="white",
+                                       relief="flat", font=("Lato", 9, "bold"))
                 btn_salvar.grid(row=0, column=5, padx=(20, 0))
 
         # Cria os botões para navegação entre as rodadas
         for i in range(len(self.manager_db.campeonato._rodadas)):
             num_rodada = i + 1
-            btn = tk.Button(frame_lista_rodadas, text=f"{num_rodada}", cursor="hand2", command=lambda r=num_rodada: mostrar_jogos(r), relief="flat", font=("Lato", 10), bg="#34495e", fg="white")
+            btn = tk.Button(frame_lista_rodadas, text=f"{num_rodada}", cursor="hand2",
+                            command=lambda r=num_rodada: mostrar_jogos(r),
+                            relief="flat", font=("Lato", 10), bg="#34495e", fg="white")
             btn.pack(side="left", expand=True, fill="x", padx=2, pady=2)
 
         # Carrega o estado inicial da tela
@@ -204,7 +241,6 @@ class InterfaceGrafica:
         mostrar_jogos(1) # Exibe a primeira rodada por padrão
 
 def main():
-    """Função principal para criar e iniciar a interface."""
     interface = InterfaceGrafica()
     interface.iniciar()
 

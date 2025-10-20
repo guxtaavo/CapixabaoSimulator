@@ -1,7 +1,8 @@
 # src/clube.py
 
 class Clube:
-    def __init__(self, nome, pontos=0, jogos=0, vitorias=0, empates=0, derrotas=0, gols_pro=0, gols_contra=0):
+    def __init__(self, nome, pontos=0, jogos=0, vitorias=0, empates=0,
+                 derrotas=0, gols_pro=0, gols_contra=0):
         self.nome = nome
         self.pontos = pontos
         self.jogos = jogos

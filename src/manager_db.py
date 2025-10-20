@@ -3,9 +3,14 @@ from pathlib import Path
 from tabulate import tabulate
 from clube import Clube
 from campeonato import Campeonato
+import sys
 
 # Define o diretório raiz do projeto para encontrar/salvar os arquivos .sqlite3
-ROOT_DIR = Path(__file__).parent
+# Bloco para detectar se está rodando como .exe ou script
+if getattr(sys, 'frozen', False):
+    ROOT_DIR = Path(sys.executable).parent
+else:
+    ROOT_DIR = Path(__file__).parent.parent
 
 class ManagerDB:
     def __init__(self, campeonato: Campeonato, db_file_path: Path = None):
