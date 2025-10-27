@@ -1,28 +1,42 @@
-# Simulador do Capixabão
+# Capixabão Simulator ⚽
 
-Este é um projeto de **simulador de campeonato de pontos corridos** desenvolvido em Python, com uma implementação específica para o **Campeonato Capixaba**. O sistema permite cadastrar times, gerenciar rodadas, calcular estatísticas e acompanhar a tabela do campeonato em tempo real. A base de dados é gerenciada utilizando o SQLite3.
-Ainda está em desenvolvimento para deixar a utilização mais prática... Pretendo criar uma interface para rodar em um arquivo executável.
+This is a **championship simulator** built with **Python**, specifically designed for the **Campeonato Capixaba** (Espírito Santo State Championship).  
+The system allows you manager rounds, calculate statistics, and track the standings in real time.  
+The database is handled using **SQLite3** 🗄️.  
 
-## Funcionalidades
+🛠️ The project is still under development — improvements to the graphical interface and an executable version are planned for the future!
 
-- **Cadastro de Times**: Insira os times participantes do campeonato.
-- **Simulação de Jogos**: Atualize os placares de cada rodada.
-- **Tabela Atualizada**: Exibição da tabela de classificação com pontos, vitórias, derrotas, empates e saldo de gols.
-- **Estatísticas**: Cálculo de aproveitamento, gols marcados, gols sofridos, e muito mais.
-- **Flexibilidade**: Fácil adaptação para outros campeonatos com estrutura semelhante.
+---
 
-## Tecnologias Utilizadas
+## 🚀 Features
 
-- **Python**: Linguagem principal do projeto.
-- **SQLite3**: Banco de dados para armazenar as informações do campeonato.
-- **Terminal Interface**: Interação com o usuário feita via terminal.
+- ⚔️ **Match Simulation** – Update the scores for each round.  
+- 📊 **Live Standings** – Displays the table with points, wins, draws, losses, and goal difference.  
+- 📈 **Statistics** – Calculates performance, goals scored, goals conceded, and much more.  
+- 🔄 **Flexibility** – Easily adaptable to other leagues or championships with similar formats.
 
-## Como Utilizar
-- Rode o app.py;
-- Crie o campeonato;
-- Cadastre os 10 clubes e depois cadastre os jogos das rodadas respectivas;
-- Volte ao menu principal;
-- Entre no campeonato existente;
-- Agora você pode pode ver tudo normalmente, e editar os jogos das rodadas que quiser.
+---
 
-  
+## 🧰 Technologies Used
+
+- 🐍 **Python** – Main programming language.  
+- 💾 **SQLite3** – Database used to store championship data.  
+
+---
+
+## 🧭 How to Use
+
+1. ▶️ Run `app.py`  
+
+---
+
+## 📌 Notes
+
+This project is focused on simplicity and learning.  
+Future updates include improvements to the graphical interface and implementation of the knockout stage of the championship.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
