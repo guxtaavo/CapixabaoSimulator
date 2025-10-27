@@ -175,3 +175,4 @@ tabela_serie_a.pdf
 
 # Para remover _pycache_ e arquivos .sqlite3 na pasta
 src/
+*.sqlite3

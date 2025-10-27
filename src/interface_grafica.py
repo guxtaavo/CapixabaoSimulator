@@ -8,8 +8,10 @@ import sys
 # Define o diretório raiz para encontrar os arquivos de banco de dados
 # Bloco para detectar se está rodando como .exe ou script
 if getattr(sys, 'frozen', False):
-    ROOT_DIR = Path(sys.executable).parent
+    # No modo .exe, os arquivos estão na pasta temp _MEIPASS
+    ROOT_DIR = Path(sys._MEIPASS) 
 else:
+    # No modo script, a raiz é dois níveis acima (pasta 'CapixabaSimulator')
     ROOT_DIR = Path(__file__).parent.parent
 
 class InterfaceGrafica:
@@ -20,7 +22,9 @@ class InterfaceGrafica:
         self.altura = 720 # Altura da janela
         self.janela = tk.Tk() # Janela principal do Tkinter
         self.janela.title("Capixabão Simulator 2026") # Título da janela
-        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico")
+        
+        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico") 
+        
         self.janela.geometry(f"{self.largura}x{self.altura}") # Define o tamanho da janela
         self.janela.configure(bg="#2c3e50") # Background da janela
 

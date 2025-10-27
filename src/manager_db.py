@@ -8,8 +8,10 @@ import sys
 # Define o diretório raiz do projeto para encontrar/salvar os arquivos .sqlite3
 # Bloco para detectar se está rodando como .exe ou script
 if getattr(sys, 'frozen', False):
-    ROOT_DIR = Path(sys.executable).parent
+    # No modo .exe, os arquivos estão na pasta temp _MEIPASS
+    ROOT_DIR = Path(sys._MEIPASS) 
 else:
+    # No modo script, a raiz é dois níveis acima (pasta 'CapixabaSimulator')
     ROOT_DIR = Path(__file__).parent.parent
 
 class ManagerDB:
@@ -64,6 +66,7 @@ class ManagerDB:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 posicao INTEGER DEFAULT 0,
                 nome_do_time TEXT UNIQUE,
+                escudo TEXT,
                 pontos INTEGER DEFAULT 0,
                 jogos INTEGER DEFAULT 0,
                 vitorias INTEGER DEFAULT 0,
@@ -79,8 +82,12 @@ class ManagerDB:
         
         # 2. Insere os times na tabela de classificação
         for time_nome in self.campeonato._times:
-            self.cursor.execute(f"INSERT INTO {self.table_name} (nome_do_time) VALUES (?)", (time_nome,))
-        
+            escudo_nome = Clube.formatar_nome_para_arquivo(time_nome)
+            self.cursor.execute(
+                f"INSERT INTO {self.table_name} (nome_do_time, escudo) VALUES (?, ?)",
+                (time_nome, escudo_nome)
+            )
+
         # 3. Cria uma tabela para cada rodada e insere os jogos pré-definidos
         for i, rodada_partidas in enumerate(self.campeonato._rodadas, start=1):
             tabela_rodada = f"Rodada_{i}_{self.table_name}"
@@ -107,16 +114,20 @@ class ManagerDB:
         a tabela formatada como uma string, ideal para GUIs com fontes monoespaçadas.
         """
         self.atualizar_estatisticas_gerais()
-        self.cursor.execute(f'SELECT * FROM {self.table_name} ORDER BY pontos DESC, vitorias DESC, saldo_de_gols DESC, gols_pro DESC')
+        self.cursor.execute(
+            f'SELECT posicao, escudo, nome_do_time, pontos, jogos, vitorias, empates, derrotas, gols_pro, gols_contra, saldo_de_gols, aproveitamento '
+            f'FROM {self.table_name} ORDER BY pontos DESC, vitorias DESC, saldo_de_gols DESC, gols_pro DESC'
+        )
         rows = self.cursor.fetchall()
-        
+
         dados = [
-            [row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], f'{row[11]:.1f}%']
+            [row[0], row[1], row[2], row[3], row[4], row[5],
+            row[6], row[7], row[8], row[9], row[10], f'{row[11]:.1f}%']
             for row in rows
         ]
-        cabecalho = ["#", "Time", "P", "J", "V", "E", "D", "GP", "GC", "SG", "Aprov."]
-        # 'psql' ou 'grid' funcionam bem em fontes como Courier
+        cabecalho = ["#", "Escudo", "Time", "P", "J", "V", "E", "D", "GP", "GC", "SG", "Aprov."]
         return tabulate(dados, headers=cabecalho, tablefmt="psql")
+
 
     def get_jogos_da_rodada(self, num_rodada: int) -> list:
         """Retorna uma lista de tuplas com os jogos da rodada especificada."""
