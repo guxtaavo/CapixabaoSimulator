@@ -5,13 +5,10 @@ from clube import Clube
 from campeonato import Campeonato
 import sys
 
-# Define o diretório raiz do projeto para encontrar/salvar os arquivos .sqlite3
-# Bloco para detectar se está rodando como .exe ou script
+# Detecta se está rodando como .exe (PyInstaller) ou como script
 if getattr(sys, 'frozen', False):
-    # No modo .exe, os arquivos estão na pasta temp _MEIPASS
     ROOT_DIR = Path(sys._MEIPASS) 
 else:
-    # No modo script, a raiz é dois níveis acima (pasta 'CapixabaSimulator')
     ROOT_DIR = Path(__file__).parent.parent
 
 class ManagerDB:
@@ -189,9 +186,27 @@ class ManagerDB:
         self.atualizar_posicoes()
 
     def atualizar_posicoes(self):
-        """(Método interno) Atualiza a coluna 'posicao' com base na ordenação de critérios."""
+        """Atualiza a coluna 'posicao' com base na ordenação de critérios."""
         self.cursor.execute(f'SELECT id FROM {self.table_name} ORDER BY pontos DESC, vitorias DESC, saldo_de_gols DESC, gols_pro DESC')
         rows = self.cursor.fetchall()
         for posicao, (id_time,) in enumerate(rows, start=1):
             self.cursor.execute(f"UPDATE {self.table_name} SET posicao = ? WHERE id = ?", (posicao, id_time))
         self.con.commit()
+
+    def get_top8_times(self) -> list:
+        """
+        Retorna os 8 primeiros colocados (nomes dos times) na ordem da classificação:
+        [1º, 2º, 3º, 4º, 5º, 6º, 7º, 8º]
+        """
+        # garante que a tabela esteja atualizada
+        self.atualizar_estatisticas_gerais()
+
+        self.cursor.execute(
+            f"""
+            SELECT nome_do_time
+            FROM {self.table_name}
+            ORDER BY pontos DESC, vitorias DESC, saldo_de_gols DESC, gols_pro DESC
+            LIMIT 8
+            """
+        )
+        return [r[0] for r in self.cursor.fetchall()]

@@ -1,12 +1,12 @@
 from collections import Counter
-import random
+# import random
 
 class Campeonato:
     def __init__(self):
         self._nome = "Campeonato Capixaba 2026"
         
-        self._times = [
-            "Capixaba",        # 0
+        self._times = [        # ID dos times
+            "Capixaba",        # 0 
             "Desportiva",      # 1
             "Forte",           # 2
             "Porto Vitória",   # 3
@@ -25,43 +25,43 @@ class Campeonato:
 
         self._partidas = [partida for rodada in self._rodadas for partida in rodada]
 
-    # Enquanto não é definido
-    def _gerar_calendario_random(self):
-        times = self._times.copy()
-        num_times = len(times)
-        num_rodadas = num_times - 1
-        jogos_por_rodada = num_times // 2
+    # # Enquanto não é definido
+    # def _gerar_calendario_random(self):
+    #     times = self._times.copy()
+    #     num_times = len(times)
+    #     num_rodadas = num_times - 1
+    #     jogos_por_rodada = num_times // 2
         
-        rodadas_geradas = []
+    #     rodadas_geradas = []
 
-        # Separa o último time para fixá-lo no algoritmo
-        times_rotativos = times[:-1]
-        time_fixo = times[-1]
+    #     # Separa o último time para fixá-lo no algoritmo
+    #     times_rotativos = times[:-1]
+    #     time_fixo = times[-1]
 
-        for i in range(num_rodadas):
-            rodada_atual = []
+    #     for i in range(num_rodadas):
+    #         rodada_atual = []
 
-            # O time fixo joga contra o primeiro da lista rotativa
-            # Alternamos o mando de campo para o time fixo a cada rodada
-            if i % 2 == 0:
-                rodada_atual.append([time_fixo, times_rotativos[0]])
-            else:
-                rodada_atual.append([times_rotativos[0], time_fixo])
+    #         # O time fixo joga contra o primeiro da lista rotativa
+    #         # Alternamos o mando de campo para o time fixo a cada rodada
+    #         if i % 2 == 0:
+    #             rodada_atual.append([time_fixo, times_rotativos[0]])
+    #         else:
+    #             rodada_atual.append([times_rotativos[0], time_fixo])
 
-            # Monta os outros jogos da rodada
-            for j in range(1, jogos_por_rodada):
-                mandante = times_rotativos[j]
-                visitante = times_rotativos[num_times - 1 - j]
-                # Para balancear, podemos fixar o mando ou alternar
-                # Aqui, fixamos o primeiro do par como mandante
-                rodada_atual.append([mandante, visitante])
+    #         # Monta os outros jogos da rodada
+    #         for j in range(1, jogos_por_rodada):
+    #             mandante = times_rotativos[j]
+    #             visitante = times_rotativos[num_times - 1 - j]
+    #             # Para balancear, podemos fixar o mando ou alternar
+    #             # Aqui, fixamos o primeiro do par como mandante
+    #             rodada_atual.append([mandante, visitante])
             
-            rodadas_geradas.append(rodada_atual)
+    #         rodadas_geradas.append(rodada_atual)
 
-            # Gira a lista de times (exceto o time fixo)
-            times_rotativos.insert(1, times_rotativos.pop())
+    #         # Gira a lista de times (exceto o time fixo)
+    #         times_rotativos.insert(1, times_rotativos.pop())
 
-        return rodadas_geradas
+    #     return rodadas_geradas
 
     def _gerar_calendario_oficial(self):
         times = self._times
