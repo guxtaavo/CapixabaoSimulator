@@ -26,7 +26,31 @@ The database is handled using **SQLite3** 🗄️.
 
 ## 🧭 How to Use
 
-1. ▶️ Run `app.py`  
+1. 1️⃣ Clone the repository
+```bash
+https://github.com/guxtaavo/CapixabaoSimulator.git
+```
+
+2. 2️⃣ Create a virtual environment
+```
+python -m venv venv
+```
+
+3. 3️⃣ Activate the virtual environment 
+```
+venv\Scripts\Activate # Windows
+source venv/bin/activate # Linux/macOS
+```
+
+4. 4️⃣ Install dependencies
+```
+pip install -r requirements.txt
+```
+
+5. 5️⃣ Run the application
+```
+python src/app.py
+```
 
 ---
 
