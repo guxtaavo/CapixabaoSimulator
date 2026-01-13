@@ -16,22 +16,31 @@ else:
 
 class InterfaceGrafica:
     def __init__(self):
-        """Inicializa a janela principal e a estrutura da interface."""
-        self.manager_db = None  # Armazena a instância do DB para a simulação atual
-        self.largura = 1280 # Largura da janela
-        self.altura = 720 # Altura da janela
-        self.janela = tk.Tk() # Janela principal do Tkinter
-        self.janela.title("Capixabão Simulator 2026") # Título da janela
-        
-        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico") 
-        
-        self.janela.geometry(f"{self.largura}x{self.altura}") # Define o tamanho da janela
-        self.janela.configure(bg="#2c3e50") # Background da janela
+        self.manager_db = None
+        self.largura = 1980
+        self.altura = 1080
 
-        # Canvas principal que servirá como base para as telas
-        self.canvas = tk.Canvas(self.janela, bg="#2c3e50", highlightthickness=0)
+        self.janela = tk.Tk()
+        self.janela.title("Capixabão Simulator 2026")
+        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico")
+
+        # 👉 Tela cheia
+        self.janela.attributes("-fullscreen", True)
+
+        # 👉 ESC sai do fullscreen
+        self.janela.bind("<Escape>", lambda e: self.janela.attributes("-fullscreen", False))
+
+        self.janela.configure(bg="#2c3e50")
+
+        self.canvas = tk.Canvas(
+            self.janela,
+            bg="#2c3e50",
+            highlightthickness=0
+        )
         self.canvas.pack(fill="both", expand=True)
-        self.menu() # Exibe o menu principal ao iniciar
+
+        self.menu()
+
 
     def iniciar(self):
         """Inicia o loop principal da aplicação Tkinter."""
