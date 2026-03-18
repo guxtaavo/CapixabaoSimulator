@@ -25,10 +25,47 @@ class InterfaceGrafica:
 
         self.janela = tk.Tk()
         self.janela.title("Capixabão Simulator 2026")
-        self.janela.iconbitmap(ROOT_DIR / "images/icone.ico")
+        ico_path = ROOT_DIR / "images/icone.ico"
+        png_path = ROOT_DIR / "images/Capixaba.png"
+        self._icon_img = None
 
-        # maximizada (não fullscreen)
-        self.janela.state("zoomed")
+        # Usa .ico no Windows e PhotoImage (png) como fallback para Linux/macOS
+        if sys.platform == "win32" and ico_path.exists():
+            try:
+                self.janela.iconbitmap(default=str(ico_path))
+            except tk.TclError:
+                pass
+
+        if png_path.exists():
+            try:
+                self._icon_img = PhotoImage(file=str(png_path))
+                self.janela.iconphoto(True, self._icon_img)
+            except tk.TclError:
+                pass
+
+        # maximizada (não fullscreen). Nem todos sistemas suportam "zoomed".
+        maximized = False
+        try:
+            # Windows suporta state("zoomed")
+            self.janela.state("zoomed")
+            maximized = True
+        except tk.TclError:
+            pass
+
+        if not maximized:
+            try:
+                # Algumas builds Tk no Linux aceitam attribute -zoomed
+                self.janela.attributes("-zoomed", True)
+                maximized = True
+            except tk.TclError:
+                pass
+
+        if not maximized:
+            # fallback: ajusta tamanho para a resolução disponível
+            self.janela.update_idletasks()
+            sw = self.janela.winfo_screenwidth()
+            sh = self.janela.winfo_screenheight()
+            self.janela.geometry(f"{sw}x{sh}")
 
         self.janela.configure(bg="#2c3e50")
         self.canvas = tk.Canvas(self.janela, bg="#2c3e50", highlightthickness=0)
@@ -249,7 +286,26 @@ class InterfaceGrafica:
 
         sim_janela = tk.Toplevel(self.janela)
         sim_janela.title(f"Simulação - {self.manager_db.db_file.name}")
-        sim_janela.state("zoomed")
+        maximized = False
+        try:
+            sim_janela.state("zoomed")
+            maximized = True
+        except tk.TclError:
+            pass
+
+        if not maximized:
+            try:
+                sim_janela.attributes("-zoomed", True)
+                maximized = True
+            except tk.TclError:
+                pass
+
+        if not maximized:
+            sim_janela.update_idletasks()
+            sw = sim_janela.winfo_screenwidth()
+            sh = sim_janela.winfo_screenheight()
+            sim_janela.geometry(f"{sw}x{sh}")
+
         sim_janela.configure(bg="#34495e")
 
         def ao_fechar():
@@ -436,7 +492,25 @@ class InterfaceGrafica:
             win.configure(bg="#2c3e50")
 
             # abre como janela maximizada (não fullscreen)
-            win.state("zoomed")
+            maximized = False
+            try:
+                win.state("zoomed")
+                maximized = True
+            except tk.TclError:
+                pass
+
+            if not maximized:
+                try:
+                    win.attributes("-zoomed", True)
+                    maximized = True
+                except tk.TclError:
+                    pass
+
+            if not maximized:
+                win.update_idletasks()
+                sw = win.winfo_screenwidth()
+                sh = win.winfo_screenheight()
+                win.geometry(f"{sw}x{sh}")
 
             # garante que a janela fique na frente
             win.transient(sim_janela)
